@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+        <context:component-scan base-package="com.fabio.services" use-default-filters="false"></context:component-scan>
+		<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+			<property name="url" value="jdbc:mysql://localhost:3306/library_db"/>
+			<property name="username" value="root" />
+			<property name="password" value=""/>
+		</bean>
+		<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"/>
+			<property name="hibernateProperties">
+				<props>
+					<prop key="hibernate.show_sql">true</prop>
+					<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+					<prop key="hibernate.hbm2ddl.auto">update</prop>
+				</props>
+			</property>
+			<property name="packagesToScan" value="com.fabio.model"/>
+		</bean>
+		<!-- PROPERTIES -->
+		<bean id="properties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<property name="locations">
+				<list>
+					<value>classpath:query.properties</value>
+					<value>classpath:label.properties</value>
+				</list>
+			</property>
+		</bean>
+		<!-- DAO -->
+		<bean id="abstractDAO" class="com.fabio.dao.AbstractDAO">
+			<property name="properties" ref="properties"></property>
+			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
+		<bean id="libroDAO" class="com.fabio.dao.LibroDAO">
+		</bean>
+		<bean id="genereDAO" class="com.fabio.dao.GenereDAO">
+		</bean>
+			<bean id="autoreDAO" class="com.fabio.dao.AutoreDAO">
+			</bean>
+			<bean id="utilDAO" class="com.fabio.dao.UtilDAO">
+			
+			</bean>
+		<bean id="services" class="com.fabio.services.Services" >
+			<property name="libroDAO" ref="libroDAO"></property>
+			<property name="genereDAO" ref="genereDAO"></property>
+			<property name="autoreDAO" ref="autoreDAO"></property>
+			<property name="utilDAO" ref="utilDAO"></property>
+		</bean>
+		
+		<!-- GESTORE DELLE TRANSAZIONI -->
+		<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+    			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
+		<bean id="json" class="com.google.gson.Gson"></bean>
+		<bean id="autoreFormValidator" class="com.fabio.bean.AutoreFormValidator"></bean>
+		<bean id="libroFormValidator" class="com.fabio.bean.LibroFormValidator"></bean>
+		<bean id = "multipartResolver"  class = "org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+</beans>
